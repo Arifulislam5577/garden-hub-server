@@ -10,6 +10,7 @@ const userSchema = new Schema<IUser>(
     role: { type: String, default: 'user' },
     img: { type: String, default: '' },
     resetToken: { type: String, default: '' },
+    expireTime: { type: String, default: '' },
     isVerified: { type: Boolean, default: false }
   },
 

@@ -28,6 +28,7 @@ export interface IUser {
   password: string
   role: string
   img?: string
+  expireTime?: string
   resetToken?: string
 }
 

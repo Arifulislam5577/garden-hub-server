@@ -1,4 +1,8 @@
+import bcrypt from 'bcryptjs'
+import { generateCode } from '../../utils/generateCode'
 import { generateJwtToken } from '../../utils/generateJwtToken'
+import { sendEmail } from '../../utils/sendEmail'
+import { verifyTokenTime } from '../../utils/verifyTokenTime'
 import { IUser, IUserLogin, IUserLoginResponse, IUserServiceResponse } from './user.interface'
 import User from './user.model'
 
@@ -48,7 +52,77 @@ export const signInService = async ({ email, password }: IUserLogin): Promise<IU
   }
 }
 
+export const resetPasswordService = async ({ email }: { email: string }): Promise<IUserLoginResponse> => {
+  const user = await User.findOne({ email })
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'User not found'
+    }
+  }
+
+  const resetToken: string = generateCode()
+  const expireTime = Date.now() + 5 * 60 * 1000
+
+  await User.findByIdAndUpdate(user._id, { resetToken, expireTime })
+  await sendEmail({ email: user.email, name: user.name, resetToken })
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Password reset link sent to your email'
+  }
+}
+
+export const updatePasswordService = async ({ resetToken, password }: { resetToken: string; password: string }) => {
+  const user = await User.findOne({ resetToken })
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Invalid reset token'
+    }
+  }
+
+  const tokenExpire = verifyTokenTime(+user.expireTime!)
+  const tokenMatch = user.resetToken === resetToken
+
+  if (tokenExpire || !tokenMatch) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Invalid reset token'
+    }
+  }
+
+  const salt = await bcrypt.genSalt(10)
+  const hashPassword = await bcrypt.hash(password, salt)
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { password: hashPassword, resetToken: '', expireTime: '' },
+    { new: true }
+  )
+
+  if (!updatedUser) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Failed to update password'
+    }
+  } else {
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Password updated successfully'
+    }
+  }
+}
+
 export const userService = {
   signUpService,
-  signInService
+  signInService,
+  resetPasswordService,
+  updatePasswordService
 }

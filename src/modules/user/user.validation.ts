@@ -38,4 +38,25 @@ const signInValidator = z.object({
     })
 })
 
-export { signInValidator, signUpValidator }
+const resetPasswordValidator = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email({ message: 'Email must be a valid email address' })
+    .trim()
+})
+
+const updatePasswordValidator = z.object({
+  password: z
+    .string({
+      required_error: 'New Password is required',
+      invalid_type_error: 'New Password must be a string'
+    })
+    .min(6, {
+      message: 'New Password must be at least 6 characters'
+    }),
+  resetToken: z.string({ required_error: 'Reset token is required' }).min(6, {
+    message: 'Reset token must be 6 characters'
+  })
+})
+
+export { resetPasswordValidator, signInValidator, signUpValidator, updatePasswordValidator }
