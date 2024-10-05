@@ -5,13 +5,16 @@ import { IUser, IUserDocument, IUserModel } from './user.interface'
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
+    address: { type: String, required: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     role: { type: String, default: 'user' },
     img: { type: String, default: '' },
     resetToken: { type: String, default: '' },
     expireTime: { type: String, default: '' },
-    isVerified: { type: Boolean, default: false }
+    isVerified: { type: Boolean, default: false },
+    isPaid: { type: Boolean, default: false }
   },
 
   {

@@ -3,7 +3,7 @@ import { generateCode } from '../../utils/generateCode'
 import { generateJwtToken } from '../../utils/generateJwtToken'
 import { sendEmail } from '../../utils/sendEmail'
 import { verifyTokenTime } from '../../utils/verifyTokenTime'
-import { IUser, IUserLogin, IUserLoginResponse, IUserServiceResponse } from './user.interface'
+import { IChangePassword, IUser, IUserLogin, IUserResponse, IUserServiceResponse } from './user.interface'
 import User from './user.model'
 
 export const signUpService = async (userData: IUser): Promise<IUserServiceResponse> => {
@@ -30,8 +30,7 @@ export const signUpService = async (userData: IUser): Promise<IUserServiceRespon
     data: savedUser
   }
 }
-
-export const signInService = async ({ email, password }: IUserLogin): Promise<IUserLoginResponse> => {
+export const signInService = async ({ email, password }: IUserLogin): Promise<IUserResponse> => {
   const user = await User.findOne({ email }).select('+password')
 
   if (user && (await user.passwordMatch(password))) {
@@ -51,8 +50,7 @@ export const signInService = async ({ email, password }: IUserLogin): Promise<IU
     }
   }
 }
-
-export const resetPasswordService = async ({ email }: { email: string }): Promise<IUserLoginResponse> => {
+export const forgotPasswordService = async ({ email }: { email: string }): Promise<IUserResponse> => {
   const user = await User.findOne({ email })
   if (!user) {
     return {
@@ -74,8 +72,13 @@ export const resetPasswordService = async ({ email }: { email: string }): Promis
     message: 'Password reset link sent to your email'
   }
 }
-
-export const updatePasswordService = async ({ resetToken, password }: { resetToken: string; password: string }) => {
+export const resetPasswordService = async ({
+  resetToken,
+  password
+}: {
+  resetToken: string
+  password: string
+}): Promise<IUserResponse> => {
   const user = await User.findOne({ resetToken })
   if (!user) {
     return {
@@ -119,10 +122,97 @@ export const updatePasswordService = async ({ resetToken, password }: { resetTok
     }
   }
 }
+export const changePasswordService = async (data: IChangePassword): Promise<IUserResponse> => {
+  const { userId, oldPassword, newPassword } = data
+
+  const user = await User.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'User not found'
+    }
+  }
+  const passwordMatch = await user.passwordMatch(oldPassword)
+  if (!passwordMatch) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Password is incorrect'
+    }
+  }
+  const salt = await bcrypt.genSalt(10)
+  const hashPassword = await bcrypt.hash(newPassword, salt)
+  const updatedUser = await User.findByIdAndUpdate(user._id, { password: hashPassword }, { new: true })
+  if (!updatedUser) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Failed to update password'
+    }
+  } else {
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Password updated successfully'
+    }
+  }
+}
+export const updateProfileService = async ({
+  userId,
+  userInfo
+}: {
+  userId: string
+  userInfo: IUser
+}): Promise<IUserResponse> => {
+  const user = await User.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'User not found'
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, userInfo, { new: true })
+  if (!updatedUser) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Failed to update profile'
+    }
+  } else {
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'Profile updated successfully',
+      data: updatedUser
+    }
+  }
+}
+export const getProfileService = async (userId: string): Promise<IUserResponse> => {
+  const user = await User.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'User not found'
+    }
+  }
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Profile fetched successfully',
+    data: user
+  }
+}
 
 export const userService = {
   signUpService,
   signInService,
+  forgotPasswordService,
   resetPasswordService,
-  updatePasswordService
+  changePasswordService,
+  updateProfileService,
+  getProfileService
 }

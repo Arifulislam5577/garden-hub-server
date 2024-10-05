@@ -6,6 +6,22 @@ const signUpValidator = z.object({
     invalid_type_error: 'Name must be a string',
     message: 'Name must be at least 4 characters'
   }),
+  address: z.string({
+    required_error: 'Address is required',
+    invalid_type_error: 'Address must be a string',
+    message: 'Address must be at least 6 characters'
+  }),
+  phone: z
+    .string({
+      required_error: 'Phone is required',
+      invalid_type_error: 'Phone must be a string'
+    })
+    .min(11, {
+      message: 'Phone must be at least 11 characters'
+    })
+    .max(11, {
+      message: 'Phone must be at most 11 characters'
+    }),
   email: z
     .string({ required_error: 'Email is required' })
     .email({ message: 'Email must be a valid email address' })
@@ -22,7 +38,6 @@ const signUpValidator = z.object({
   img: z.string().optional().default(''),
   isVerified: z.boolean().optional().default(false)
 })
-
 const signInValidator = z.object({
   email: z
     .string({ required_error: 'Email is required' })
@@ -37,15 +52,13 @@ const signInValidator = z.object({
       message: 'Password must be at least 6 characters'
     })
 })
-
-const resetPasswordValidator = z.object({
+const forgotPasswordValidator = z.object({
   email: z
     .string({ required_error: 'Email is required' })
     .email({ message: 'Email must be a valid email address' })
     .trim()
 })
-
-const updatePasswordValidator = z.object({
+const resetPasswordValidator = z.object({
   password: z
     .string({
       required_error: 'New Password is required',
@@ -58,5 +71,23 @@ const updatePasswordValidator = z.object({
     message: 'Reset token must be 6 characters'
   })
 })
+const changePasswordValidator = z.object({
+  newPassword: z
+    .string({
+      required_error: 'New Password is required',
+      invalid_type_error: 'New Password must be a string'
+    })
+    .min(6, {
+      message: 'New Password must be at least 6 characters'
+    }),
+  oldPassword: z
+    .string({
+      required_error: 'New Password is required',
+      invalid_type_error: 'New Password must be a string'
+    })
+    .min(6, {
+      message: 'New Password must be at least 6 characters'
+    })
+})
 
-export { resetPasswordValidator, signInValidator, signUpValidator, updatePasswordValidator }
+export { changePasswordValidator, forgotPasswordValidator, resetPasswordValidator, signInValidator, signUpValidator }

@@ -13,7 +13,7 @@ export type IUserLogin = {
   password: string
 }
 
-export interface IUserLoginResponse {
+export interface IUserResponse {
   success: boolean
   statusCode: number
   message: string
@@ -23,6 +23,8 @@ export interface IUserLoginResponse {
 
 export interface IUser {
   name: string
+  address: string
+  phone: string
   email: string
   isVerified: boolean
   password: string
@@ -30,6 +32,13 @@ export interface IUser {
   img?: string
   expireTime?: string
   resetToken?: string
+  isPaid?: boolean
+}
+
+export interface IChangePassword {
+  userId: string
+  oldPassword: string
+  newPassword: string
 }
 
 export interface IUserMethods {

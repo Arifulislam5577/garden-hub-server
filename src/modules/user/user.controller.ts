@@ -4,28 +4,68 @@ import { userService } from './user.service'
 
 // ROUTE--/api/v1/user/sign-up
 // METHOD--POST
+
 const signUp = catchAsync(async (req: Request, res: Response) => {
   const response = await userService.signUpService(req.body)
   return res.status(response?.statusCode).json(response)
 })
 // ROUTE--/api/v1/user/sign-in
 // METHOD--POST
+
 const signIn = catchAsync(async (req: Request, res: Response) => {
   const response = await userService.signInService(req.body)
   return res.status(response?.statusCode).json(response)
 })
-// ROUTE--/api/v1/user/reset-password
+// ROUTE--/api/v1/user/forgot-password
 // METHOD--POST
+
+const forgotPassword = catchAsync(async (req: Request, res: Response) => {
+  const response = await userService.forgotPasswordService(req.body)
+  return res.status(response?.statusCode).json(response)
+})
+
+// ROUTE--/api/v1/user/reset-password
+// METHOD--PATCH
+
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const response = await userService.resetPasswordService(req.body)
   return res.status(response?.statusCode).json(response)
 })
 
-// ROUTE--/api/v1/user/update-password
-// METHOD--POST
-const updatePassword = catchAsync(async (req: Request, res: Response) => {
-  const response = await userService.updatePasswordService(req.body)
+// ROUTE--/api/v1/user/change-password
+// METHOD--PATCH
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const { newPassword, oldPassword } = req.body
+  const response = await userService.changePasswordService({ userId: user.id, newPassword, oldPassword })
   return res.status(response?.statusCode).json(response)
 })
 
-export const userController = { signUp, signIn, resetPassword, updatePassword }
+// ROUTE--/api/v1/user/profile
+// METHOD--PATCH
+
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const response = await userService.updateProfileService({ userId: user.id, userInfo: req.body })
+  return res.status(response?.statusCode).json(response)
+})
+
+// ROUTE--/api/v1/user/profile
+// METHOD--GET
+
+const getProfile = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const response = await userService.getProfileService(user.id)
+  return res.status(response?.statusCode).json(response)
+})
+
+export const userController = {
+  signUp,
+  signIn,
+  forgotPassword,
+  updateProfile,
+  resetPassword,
+  changePassword,
+  getProfile
+}
