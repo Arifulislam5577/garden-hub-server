@@ -16,7 +16,6 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false }
   },
-
   {
     timestamps: true,
     toJSON: {

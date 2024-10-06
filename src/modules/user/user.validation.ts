@@ -18,9 +18,6 @@ const signUpValidator = z.object({
     })
     .min(11, {
       message: 'Phone must be at least 11 characters'
-    })
-    .max(11, {
-      message: 'Phone must be at most 11 characters'
     }),
   email: z
     .string({ required_error: 'Email is required' })
