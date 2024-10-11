@@ -14,7 +14,8 @@ const userSchema = new Schema<IUser>(
     resetToken: { type: String, default: '' },
     expireTime: { type: String, default: '' },
     isVerified: { type: Boolean, default: false },
-    isPaid: { type: Boolean, default: false }
+    isPaid: { type: Boolean, default: false },
+    shouldVerify: { type: Boolean, default: true }
   },
   {
     timestamps: true,

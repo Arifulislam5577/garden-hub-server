@@ -11,6 +11,28 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+const getPosts = catchAsync(async (req: Request, res: Response) => {
+  const response = await postService.getPostsService()
+  return res.status(response?.statusCode).json(response)
+})
+
+const addLike = catchAsync(async (req: Request, res: Response) => {
+  const response = await postService.addLikeService({ postId: req.params.postId, userId: req?.user?.user?.id })
+  return res.status(response?.statusCode).json(response)
+})
+
+const addComment = catchAsync(async (req: Request, res: Response) => {
+  const response = await postService.addCommentService({
+    postId: req.params.postId,
+    userId: req?.user?.user?.id,
+    commentText: req.body.commentText
+  })
+  return res.status(response?.statusCode).json(response)
+})
+
 export const postController = {
-  createPost
+  createPost,
+  getPosts,
+  addLike,
+  addComment
 }

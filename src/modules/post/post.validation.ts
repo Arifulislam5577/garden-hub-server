@@ -1,28 +1,6 @@
 import { z } from 'zod'
 
 const createPost = z.object({
-  title: z
-    .string({
-      required_error: 'Title is required',
-      invalid_type_error: 'Title must be a string'
-    })
-    .min(3, {
-      message: 'Title must be at least 3 characters'
-    })
-    .max(50, {
-      message: 'Title must be less than 50 characters'
-    }),
-  description: z
-    .string({
-      required_error: 'Description is required',
-      invalid_type_error: 'Description must be a string'
-    })
-    .min(3, {
-      message: 'Description must be at least 3 characters'
-    })
-    .max(300, {
-      message: 'Description must be less than 300 characters'
-    }),
   content: z
     .string({
       required_error: 'Content is required',

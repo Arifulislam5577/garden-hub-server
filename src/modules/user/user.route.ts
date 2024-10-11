@@ -2,6 +2,7 @@ import express from 'express'
 import { auth } from '../../global/auth'
 import { ZodValidation } from '../../middleware/ZodValidation'
 import { userController } from './user.controller'
+
 import {
   changePasswordValidator,
   forgotPasswordValidator,
@@ -20,6 +21,7 @@ userRouter
   .route('/profile')
   .get(auth('user'), userController.getProfile)
   .patch(auth('user'), userController.updateProfile)
+userRouter.route('/profile/:id').get(auth('user'), userController.profileNeedToVerify)
 userRouter
   .route('/change-password')
   .patch(auth('user'), ZodValidation(changePasswordValidator), userController.changePassword)

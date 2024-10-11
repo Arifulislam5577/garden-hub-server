@@ -6,6 +6,11 @@ import { postValidator } from './post.validation'
 
 const postRouter = express.Router()
 
-postRouter.route('/').post(ZodValidation(postValidator.createPost), auth('user'), postController.createPost)
+postRouter
+  .route('/')
+  .get(postController.getPosts)
+  .post(ZodValidation(postValidator.createPost), auth('user'), postController.createPost)
+
+postRouter.route('/:postId').patch(auth('user'), postController.addLike).put(auth('user'), postController.addComment)
 
 export default postRouter

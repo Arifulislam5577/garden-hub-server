@@ -1,10 +1,12 @@
 import cors from 'cors'
 import express, { Application, NextFunction, Request, Response } from 'express'
+import morgan from 'morgan'
 import globalErrorHandler from './global/globalError'
 import postRouter from './modules/post/post.route'
 import userRouter from './modules/user/user.route'
 
 const app: Application = express()
+app.use(morgan('dev'))
 app.use(express.json())
 app.use(cors({ origin: ['http://localhost:3000'], credentials: true }))
 app.use('/api/v1/user', userRouter)

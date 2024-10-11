@@ -60,6 +60,15 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+// ROUTE--/api/v1/user/profile/:id
+// METHOD--GET
+
+const profileNeedToVerify = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const response = await userService.shouldUserProfileVerify(user.id)
+  return res.status(response?.statusCode).json(response)
+})
+
 export const userController = {
   signUp,
   signIn,
@@ -67,5 +76,6 @@ export const userController = {
   updateProfile,
   resetPassword,
   changePassword,
-  getProfile
+  getProfile,
+  profileNeedToVerify
 }

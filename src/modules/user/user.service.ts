@@ -3,10 +3,11 @@ import { generateCode } from '../../utils/generateCode'
 import { generateJwtToken } from '../../utils/generateJwtToken'
 import { sendEmail } from '../../utils/sendEmail'
 import { verifyTokenTime } from '../../utils/verifyTokenTime'
+import { Post } from '../post/post.model'
 import { IChangePassword, IUser, IUserLogin, IUserResponse, IUserServiceResponse } from './user.interface'
 import User from './user.model'
 
-export const signUpService = async (userData: IUser): Promise<IUserServiceResponse> => {
+const signUpService = async (userData: IUser): Promise<IUserServiceResponse> => {
   const { email, ...restProps } = userData
   const isExist = await User.isUserExist(email)
 
@@ -30,7 +31,7 @@ export const signUpService = async (userData: IUser): Promise<IUserServiceRespon
     data: savedUser
   }
 }
-export const signInService = async ({ email, password }: IUserLogin): Promise<IUserResponse> => {
+const signInService = async ({ email, password }: IUserLogin): Promise<IUserResponse> => {
   const user = await User.findOne({ email }).select('+password')
 
   if (user && (await user.passwordMatch(password))) {
@@ -50,7 +51,7 @@ export const signInService = async ({ email, password }: IUserLogin): Promise<IU
     }
   }
 }
-export const forgotPasswordService = async ({ email }: { email: string }): Promise<IUserResponse> => {
+const forgotPasswordService = async ({ email }: { email: string }): Promise<IUserResponse> => {
   const user = await User.findOne({ email })
   if (!user) {
     return {
@@ -72,7 +73,7 @@ export const forgotPasswordService = async ({ email }: { email: string }): Promi
     message: 'Password reset link sent to your email'
   }
 }
-export const resetPasswordService = async ({
+const resetPasswordService = async ({
   resetToken,
   password
 }: {
@@ -122,7 +123,7 @@ export const resetPasswordService = async ({
     }
   }
 }
-export const changePasswordService = async (data: IChangePassword): Promise<IUserResponse> => {
+const changePasswordService = async (data: IChangePassword): Promise<IUserResponse> => {
   const { userId, oldPassword, newPassword } = data
 
   const user = await User.findById(userId)
@@ -158,7 +159,7 @@ export const changePasswordService = async (data: IChangePassword): Promise<IUse
     }
   }
 }
-export const updateProfileService = async ({
+const updateProfileService = async ({
   userId,
   userInfo
 }: {
@@ -190,7 +191,7 @@ export const updateProfileService = async ({
     }
   }
 }
-export const getProfileService = async (userId: string): Promise<IUserResponse> => {
+const getProfileService = async (userId: string): Promise<IUserResponse> => {
   const user = await User.findById(userId)
   if (!user) {
     return {
@@ -207,6 +208,45 @@ export const getProfileService = async (userId: string): Promise<IUserResponse> 
   }
 }
 
+const shouldUserProfileVerify = async (userId: string): Promise<IUserResponse> => {
+  const user = await User.findById(userId)
+
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'User not found',
+      data: user
+    }
+  }
+
+  if (!user.shouldVerify) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Profile already verified',
+      data: user
+    }
+  }
+
+  const postWithLikes = await Post.findOne({ authorId: userId, likes: { $exists: true, $ne: [] } })
+
+  if (postWithLikes) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Profile needs to be verified due to liked posts',
+      data: user
+    }
+  }
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Profile does not need verification',
+    data: user
+  }
+}
 export const userService = {
   signUpService,
   signInService,
@@ -214,5 +254,6 @@ export const userService = {
   resetPasswordService,
   changePasswordService,
   updateProfileService,
-  getProfileService
+  getProfileService,
+  shouldUserProfileVerify
 }

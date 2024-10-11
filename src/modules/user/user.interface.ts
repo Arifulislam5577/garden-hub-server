@@ -33,6 +33,7 @@ export interface IUser {
   expireTime?: string
   resetToken?: string
   isPaid?: boolean
+  shouldVerify?: boolean
 }
 
 export interface IChangePassword {
