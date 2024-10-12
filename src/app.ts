@@ -7,7 +7,7 @@ import userRouter from './modules/user/user.route'
 
 const app: Application = express()
 app.use(morgan('dev'))
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
 app.use(cors({ origin: ['http://localhost:3000'], credentials: true }))
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/post', postRouter)

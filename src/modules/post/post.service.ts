@@ -1,3 +1,4 @@
+import { uploadImage } from '../../utils/uploadImage'
 import { IPost, IPostResponse } from './post.interface'
 import { Post } from './post.model'
 
@@ -25,7 +26,8 @@ const createPostService = async ({ userId, postInfo }: { userId: string; postInf
     }
   }
 
-  const post = await Post.create({ ...postInfo, authorId: userId })
+  const uploadPostImage = await uploadImage(postInfo.coverImg)
+  const post = await Post.create({ ...postInfo, authorId: userId, coverImg: uploadPostImage })
   return {
     success: true,
     statusCode: 201,

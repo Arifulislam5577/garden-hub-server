@@ -207,7 +207,6 @@ const getProfileService = async (userId: string): Promise<IUserResponse> => {
     data: user
   }
 }
-
 const shouldUserProfileVerify = async (userId: string): Promise<IUserResponse> => {
   const user = await User.findById(userId)
 

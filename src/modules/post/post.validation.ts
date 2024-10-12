@@ -6,7 +6,7 @@ const createPost = z.object({
       required_error: 'Content is required',
       invalid_type_error: 'Content must be a string'
     })
-    .min(100, {
+    .min(3, {
       message: 'Content must be at least 3 characters'
     }),
   coverImg: z.string({

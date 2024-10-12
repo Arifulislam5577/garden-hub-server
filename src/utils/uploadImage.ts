@@ -7,7 +7,7 @@ export const uploadImage = async (img: string) => {
       width: 640,
       crop: 'fit',
       quality: 95,
-      folder: 'keyzone'
+      folder: 'garden-hub'
     })
     return imgObj.secure_url
   } catch (error) {
