@@ -171,6 +171,33 @@ const updatePostService = async (data: IPost, postId: string): Promise<IPostResp
     data: updatedPost
   }
 }
+const deletePostService = async (postId: string, userId: string, role: string): Promise<IPostResponse> => {
+  const post = await Post.findById(postId)
+
+  if (!post) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Post is required'
+    }
+  }
+
+  if (post?.authorId.toString() !== userId || role === 'admin') {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'You are not authorized to delete this post'
+    }
+  }
+
+  const deletedPost = await Post.findByIdAndDelete(postId)
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Post deleted successfully',
+    data: deletedPost
+  }
+}
 
 export const postService = {
   createPostService,
@@ -178,5 +205,6 @@ export const postService = {
   addLikeService,
   addCommentService,
   getUserPostsService,
-  updatePostService
+  updatePostService,
+  deletePostService
 }

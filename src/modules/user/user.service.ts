@@ -1,4 +1,6 @@
 import bcrypt from 'bcryptjs'
+import Stripe from 'stripe'
+import config from '../../config'
 import { generateCode } from '../../utils/generateCode'
 import { generateJwtToken } from '../../utils/generateJwtToken'
 import { sendEmail } from '../../utils/sendEmail'
@@ -6,6 +8,7 @@ import { verifyTokenTime } from '../../utils/verifyTokenTime'
 import { Post } from '../post/post.model'
 import { IChangePassword, IUser, IUserLogin, IUserResponse, IUserServiceResponse } from './user.interface'
 import User from './user.model'
+const stripe = new Stripe(config.STRIPE_SECRET_KEY!)
 
 const signUpService = async (userData: IUser): Promise<IUserServiceResponse> => {
   const { email, ...restProps } = userData
@@ -246,6 +249,85 @@ const shouldUserProfileVerify = async (userId: string): Promise<IUserResponse> =
     data: user
   }
 }
+const profileVerifyPaymentService = async (userId: string): Promise<IUserResponse> => {
+  const user = await User.findById(userId)
+
+  const price = 11.99
+  const totalAmount = price * 100
+
+  const customer = await stripe.customers.create({
+    email: user?.email,
+    metadata: {
+      orderInfo: JSON.stringify({
+        email: user?.email,
+        name: user?.name,
+        userId: user?._id,
+        img: user?.img
+      })
+    }
+  })
+
+  const verifiedToken = generateCode()
+
+  const session: Stripe.Response<Stripe.Checkout.Session> = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'Profile Verification',
+            images: [
+              'https://img.freepik.com/premium-vector/blue-verified-social-media-account-icon-approved-profile-sign-tick-rounded-corners-star-top-pa_837621-164.jpg'
+            ]
+          },
+          unit_amount: totalAmount
+        },
+        quantity: 1
+      }
+    ],
+    mode: 'payment',
+    success_url: `${config.CLIENT_URL}/success?verifiedToken=${verifiedToken}`,
+    cancel_url: `${config.CLIENT_URL}/cancel`,
+    customer: customer.id
+  })
+
+  if (session?.success_url) {
+    await User.findByIdAndUpdate(user?._id, { verifiedToken: verifiedToken })
+  }
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Payment link send successfully',
+    stripeUrl: session.url!
+  }
+}
+const profileVerifyService = async (verifiedToken: string): Promise<IUserResponse> => {
+  const user = await User.findOne({ verifiedToken })
+
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'User not found'
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { shouldVerify: false, verifiedToken: '', isVerified: true, isPaid: true },
+    { new: true }
+  )
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Profile verified successfully',
+    data: updatedUser
+  }
+}
+
 export const userService = {
   signUpService,
   signInService,
@@ -254,5 +336,7 @@ export const userService = {
   changePasswordService,
   updateProfileService,
   getProfileService,
-  shouldUserProfileVerify
+  shouldUserProfileVerify,
+  profileVerifyPaymentService,
+  profileVerifyService
 }

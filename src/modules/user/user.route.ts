@@ -26,4 +26,7 @@ userRouter
   .route('/change-password')
   .patch(auth('user'), ZodValidation(changePasswordValidator), userController.changePassword)
 
+userRouter.route('/profile/payment').post(auth('user'), userController.profilePayment)
+userRouter.route('/profile/verify/:token').put(auth('user'), userController.profileVerify)
+
 export default userRouter

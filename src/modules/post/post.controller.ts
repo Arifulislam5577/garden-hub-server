@@ -42,11 +42,19 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+const deletePost = catchAsync(async (req: Request, res: Response) => {
+  const { postId } = req.params
+  const { user } = req.user
+  const response = await postService.deletePostService(postId, user.id, user.role)
+  return res.status(response?.statusCode).json(response)
+})
+
 export const postController = {
   createPost,
   getPosts,
   addLike,
   addComment,
   getUserPost,
-  updatePost
+  updatePost,
+  deletePost
 }

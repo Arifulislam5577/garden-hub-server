@@ -11,7 +11,11 @@ postRouter
   .get(postController.getPosts)
   .post(ZodValidation(postValidator.createPost), auth('user'), postController.createPost)
 
-postRouter.route('/:postId').patch(auth('user'), postController.addLike).put(auth('user'), postController.addComment)
+postRouter
+  .route('/:postId')
+  .patch(auth('user'), postController.addLike)
+  .put(auth('user'), postController.addComment)
+  .delete(auth('user'), postController.deletePost)
 postRouter.route('/me').get(auth('user'), postController.getUserPost)
 postRouter.route('/update/:postId').put(auth('user'), postController.updatePost)
 

@@ -69,6 +69,24 @@ const profileNeedToVerify = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+// ROUTE--/api/v1/user/profile/payment
+// METHOD--POST
+
+const profilePayment = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const response = await userService.profileVerifyPaymentService(user.id)
+  return res.status(response?.statusCode).json(response)
+})
+
+// ROUTE--/api/v1/user/profile/verify/:token
+// METHOD--PUT
+
+const profileVerify = catchAsync(async (req: Request, res: Response) => {
+  const { token } = req.params
+  const response = await userService.profileVerifyService(token)
+  return res.status(response?.statusCode).json(response)
+})
+
 export const userController = {
   signUp,
   signIn,
@@ -77,5 +95,7 @@ export const userController = {
   resetPassword,
   changePassword,
   getProfile,
-  profileNeedToVerify
+  profileNeedToVerify,
+  profilePayment,
+  profileVerify
 }

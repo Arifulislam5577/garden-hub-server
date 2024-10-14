@@ -13,5 +13,6 @@ export default {
   CLOUD_API_SECRET: process.env.CLOUD_API_SECRET,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
-  SMTP_EMAIL: process.env.SMTP_EMAIL
+  SMTP_EMAIL: process.env.SMTP_EMAIL,
+  CLIENT_URL: process.env.CLIENT_URL
 }

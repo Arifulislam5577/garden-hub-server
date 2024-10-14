@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Document, Model } from 'mongoose'
+import { Document, Model, ObjectId } from 'mongoose'
 
 export interface IUserServiceResponse {
   success: boolean
@@ -19,6 +19,7 @@ export interface IUserResponse {
   message: string
   token?: string
   data?: IUser | null
+  stripeUrl?: string
 }
 
 export interface IUser {
@@ -32,8 +33,11 @@ export interface IUser {
   img?: string
   expireTime?: string
   resetToken?: string
+  verifiedToken?: string
   isPaid?: boolean
   shouldVerify?: boolean
+  followers?: [ObjectId]
+  following?: [ObjectId]
 }
 
 export interface IChangePassword {
