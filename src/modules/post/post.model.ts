@@ -8,14 +8,10 @@ const postSchema = new Schema<IPost>(
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     category: { type: String, required: true },
     tag: { type: String, required: true },
-    likes: [
-      {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
-      }
-    ],
+    likes: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     comments: [
       {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         commentText: { type: String, required: true }
       }
     ]

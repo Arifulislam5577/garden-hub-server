@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import { uploadImage } from '../../utils/uploadImage'
 import { IPost, IPostResponse } from './post.interface'
 import { Post } from './post.model'
@@ -5,8 +6,8 @@ import { Post } from './post.model'
 const getPostsService = async (): Promise<IPostResponse> => {
   const posts = await Post.find()
     .populate('authorId', 'name email isPaid img')
-    .populate('likes.userId', 'name email isPaid img')
-    .populate('comments.userId', 'name email isPaid img')
+    .populate('likes', 'name img')
+    .populate({ path: 'comments.user', select: 'name email isPaid img' })
     .sort({ likes: -1 })
 
   return {
@@ -16,7 +17,6 @@ const getPostsService = async (): Promise<IPostResponse> => {
     data: posts
   }
 }
-
 const createPostService = async ({ userId, postInfo }: { userId: string; postInfo: IPost }): Promise<IPostResponse> => {
   if (!userId) {
     return {
@@ -35,8 +35,13 @@ const createPostService = async ({ userId, postInfo }: { userId: string; postInf
     data: post
   }
 }
-
-const addLikeService = async ({ userId, postId }: { userId: string; postId: string }): Promise<IPostResponse> => {
+const addLikeService = async ({
+  userId,
+  postId
+}: {
+  userId: Types.ObjectId
+  postId: string
+}): Promise<IPostResponse> => {
   if (!userId || !postId) {
     return {
       success: false,
@@ -55,13 +60,13 @@ const addLikeService = async ({ userId, postId }: { userId: string; postId: stri
     }
   }
 
-  const isLiked = post.likes.some((like) => like.userId.toString() === userId)
+  const isLiked = post.likes.find((like) => like.toString() === userId.toString())
 
   if (isLiked) {
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
       {
-        $pull: { likes: { userId } }
+        $pull: { likes: userId }
       },
       { new: true }
     )
@@ -77,7 +82,7 @@ const addLikeService = async ({ userId, postId }: { userId: string; postId: stri
   const updatedPost = await Post.findByIdAndUpdate(
     postId,
     {
-      $push: { likes: { userId } }
+      $push: { likes: userId }
     },
     { new: true }
   )
@@ -89,7 +94,6 @@ const addLikeService = async ({ userId, postId }: { userId: string; postId: stri
     data: updatedPost
   }
 }
-
 const addCommentService = async ({
   postId,
   userId,
@@ -121,11 +125,11 @@ const addCommentService = async ({
     postId,
     {
       $push: {
-        comments: { userId, commentText }
+        comments: { user: userId, commentText }
       }
     },
     { new: true }
-  ).populate('comments.userId', 'name email isPaid img')
+  ).populate('comments.user', 'name email isPaid img')
 
   return {
     success: true,
@@ -134,10 +138,45 @@ const addCommentService = async ({
     data: updatedPost
   }
 }
+const getUserPostsService = async (userId: string): Promise<IPostResponse> => {
+  const posts = await Post.find({ authorId: userId })
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'User posts fetched successfully',
+    data: posts
+  }
+}
+const updatePostService = async (data: IPost, postId: string): Promise<IPostResponse> => {
+  if (!postId) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'Post is required'
+    }
+  }
+  const cleanedData = Object.fromEntries(
+    Object.entries(data).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+  )
+
+  if (cleanedData.coverImg) {
+    cleanedData.coverImg = await uploadImage(data.coverImg)
+  }
+
+  const updatedPost = await Post.findByIdAndUpdate(postId, cleanedData, { new: true })
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'Post updated successfully',
+    data: updatedPost
+  }
+}
 
 export const postService = {
   createPostService,
   getPostsService,
   addLikeService,
-  addCommentService
+  addCommentService,
+  getUserPostsService,
+  updatePostService
 }

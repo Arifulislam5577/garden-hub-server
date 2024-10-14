@@ -15,7 +15,9 @@ const userSchema = new Schema<IUser>(
     expireTime: { type: String, default: '' },
     isVerified: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false },
-    shouldVerify: { type: Boolean, default: true }
+    shouldVerify: { type: Boolean, default: true },
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: Schema.Types.ObjectId, ref: 'User' }]
   },
   {
     timestamps: true,

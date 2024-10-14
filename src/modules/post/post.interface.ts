@@ -6,11 +6,7 @@ export interface IPost {
   authorId: ObjectId
   category: string
   tag: string
-  likes: [
-    {
-      userId: ObjectId
-    }
-  ]
+  likes: [ObjectId]
   comments: [
     {
       userId: ObjectId

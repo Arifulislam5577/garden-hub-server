@@ -30,9 +30,23 @@ const addComment = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+const getUserPost = catchAsync(async (req: Request, res: Response) => {
+  const { user } = req.user
+  const response = await postService.getUserPostsService(user.id)
+  return res.status(response?.statusCode).json(response)
+})
+
+const updatePost = catchAsync(async (req: Request, res: Response) => {
+  const { postId } = req.params
+  const response = await postService.updatePostService(req.body, postId)
+  return res.status(response?.statusCode).json(response)
+})
+
 export const postController = {
   createPost,
   getPosts,
   addLike,
-  addComment
+  addComment,
+  getUserPost,
+  updatePost
 }
