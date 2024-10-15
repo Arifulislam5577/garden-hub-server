@@ -17,8 +17,7 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false },
     shouldVerify: { type: Boolean, default: true },
-    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }]
   },
   {
     timestamps: true,

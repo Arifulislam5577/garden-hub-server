@@ -21,7 +21,10 @@ userRouter
   .route('/profile')
   .get(auth('user'), userController.getProfile)
   .patch(auth('user'), userController.updateProfile)
-userRouter.route('/profile/:id').get(auth('user'), userController.profileNeedToVerify)
+userRouter
+  .route('/profile/:id')
+  .get(auth('user'), userController.profileNeedToVerify)
+  .patch(auth('user'), userController.profileFollow)
 userRouter
   .route('/change-password')
   .patch(auth('user'), ZodValidation(changePasswordValidator), userController.changePassword)

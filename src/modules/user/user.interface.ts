@@ -37,7 +37,6 @@ export interface IUser {
   isPaid?: boolean
   shouldVerify?: boolean
   followers?: [ObjectId]
-  following?: [ObjectId]
 }
 
 export interface IChangePassword {

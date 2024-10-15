@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import { Types } from 'mongoose'
 import Stripe from 'stripe'
 import config from '../../config'
 import { generateCode } from '../../utils/generateCode'
@@ -328,6 +329,66 @@ const profileVerifyService = async (verifiedToken: string): Promise<IUserRespons
   }
 }
 
+const addFollowerService = async ({
+  userId,
+  currentUserId
+}: {
+  userId: Types.ObjectId
+  currentUserId: string
+}): Promise<IUserResponse> => {
+  if (!userId) {
+    return {
+      success: false,
+      statusCode: 400,
+      message: 'User id is required'
+    }
+  }
+
+  const user = await User.findById(userId)
+
+  if (!user) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: 'user not found'
+    }
+  }
+
+  const isFollowed = user?.followers?.find((follow) => follow.toString() === currentUserId)
+
+  if (isFollowed) {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { followers: currentUserId }
+      },
+      { new: true }
+    )
+
+    return {
+      success: true,
+      statusCode: 200,
+      message: 'User unfollowed successfully',
+      data: updatedUser
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      $push: { followers: currentUserId }
+    },
+    { new: true }
+  )
+
+  return {
+    success: true,
+    statusCode: 200,
+    message: 'User followed successfully',
+    data: updatedUser
+  }
+}
+
 export const userService = {
   signUpService,
   signInService,
@@ -338,5 +399,6 @@ export const userService = {
   getProfileService,
   shouldUserProfileVerify,
   profileVerifyPaymentService,
-  profileVerifyService
+  profileVerifyService,
+  addFollowerService
 }

@@ -87,6 +87,16 @@ const profileVerify = catchAsync(async (req: Request, res: Response) => {
   return res.status(response?.statusCode).json(response)
 })
 
+// ROUTE--/api/v1/user/profile/:id
+// METHOD--PATCH
+
+const profileFollow = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { user } = req.user
+  const response = await userService.addFollowerService({ userId: user.id, currentUserId: id })
+  return res.status(response?.statusCode).json(response)
+})
+
 export const userController = {
   signUp,
   signIn,
@@ -97,5 +107,6 @@ export const userController = {
   getProfile,
   profileNeedToVerify,
   profilePayment,
-  profileVerify
+  profileVerify,
+  profileFollow
 }
